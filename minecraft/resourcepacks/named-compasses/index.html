@@ -6,6 +6,58 @@
 		<link href="css/style.css" rel="stylesheet">
 	</head>
 	<body>
-		ahaslfkhsdfjkahsfhsadjkfhasdklfhj
+		<button class="button" id="generate-resourcepack">crear</button><br>
+		<canvas class="result" id="result" hidden="true"></canvas>
+		<script>
+			let result = document.querySelector("#result");
+			let button_generate_resourcepack = document.querySelector("#generate-resourcepack");
+			var context = result.getContext("2d");
+
+			result.width = 16;
+			result.height = 16;
+			context.globalAlpha = 1.0;
+
+			dyes = ["red", "orange", "yellow", "light_green", "green", "cyan", "light_blue", "blue", "purple", "magenta", "pink", "white", "light_gray", "gray", "black", "brown"];
+			function get_image(src) {
+				var image = new Image();
+				image.setAttribute("crossorigin", "anonymous");
+				image.src = src
+				return new Promise((resolve) => {
+					image.onload = () => resolve(image);
+				})
+			}
+
+			function get_dye(index, dyes) {
+				return get_image("./assets/compass_" + dyes[index] + ".png");
+			}
+
+			function get_frame(index) {
+				if (index < 10) {
+					index = "0" + index;
+				}
+				return get_image("./assets/frames/compass_" + index + ".png");
+			}
+
+			function draw_texture(dye, frame) {
+				context.clearRect(0, 0, result.width, result.height);
+				context.drawImage(frame, 0, 0);
+				context.drawImage(dye, 0, 0);
+			}
+
+			button_generate_resourcepack.addEventListener("click", async () => {
+				const frames_amount = 32;
+
+				for (let dye_index = 0; dye_index < dyes.length; dye_index++) {
+					var dye = await get_dye(dye_index, dyes);
+					for (let frame_index = 0; frame_index < frames_amount; frame_index++) {
+						var frame = await get_frame(frame_index);
+
+						draw_texture(dye, frame);
+						var newTexture = result.toDataURL("image/png", 1);
+						console.log("dye: " + dye_index + ", frame: " + frame_index + ", " + newTexture);
+					}
+				}
+			})
+		</script>
 	</body>
 </html>
